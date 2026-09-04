@@ -37,7 +37,7 @@
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-8px)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         },
                         pulseGlow: {
                             '0%, 100%': { boxShadow: '0 0 15px rgba(129, 140, 248, 0.4)' },
@@ -52,12 +52,7 @@
         body {
             font-family: 'Nunito', sans-serif;
             background: linear-gradient(135deg, #f3e8ff 0%, #e0f2fe 50%, #fce7f3 100%);
-            min-height: 100vh;
             user-select: none;
-        }
-
-        .slide-card {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .drop-zone {
@@ -95,109 +90,125 @@
             pointer-events: none;
             z-index: 100;
         }
+
+        /* Custom scrollbars inside container if required on very low resolution screens */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a7f3d0;
+            border-radius: 10px;
+        }
     </style>
 </head>
-<body class="p-3 md:p-6 text-slate-800 flex flex-col min-h-screen justify-between">
+<body class="p-3 md:p-6 text-slate-800 flex flex-col h-screen w-screen overflow-hidden justify-between">
 
     <canvas id="confettiCanvas"></canvas>
 
-    <header class="max-w-6xl mx-auto w-full bg-white/85 backdrop-blur-md rounded-3xl p-4 shadow-lg border-2 border-white mb-4 transition-all">
+    <!-- HEADER / APP BAR -->
+    <header class="max-w-7xl mx-auto w-full bg-white/90 backdrop-blur-md rounded-3xl p-3 md:p-4 shadow-lg border-2 border-white shrink-0 mb-3 transition-all">
         <div class="flex flex-wrap justify-between items-center gap-3">
             <!-- App Title & Topic -->
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-400 to-indigo-400 flex items-center justify-center text-2xl text-white shadow-md animate-bounceSlow">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-400 to-indigo-500 flex items-center justify-center text-3xl text-white shadow-md animate-bounceSlow shrink-0">
                     ⌨️🤖
                 </div>
                 <div>
-                    <h1 class="font-fredoka text-xl md:text-2xl text-slate-800 tracking-wide">Manual & Automatic Input Devices</h1>
-                    <p class="text-xs md:text-sm text-slate-500 font-semibold">Year 1 ICT • Interactive Presentation & 100-Pt Challenge</p>
+                    <h1 class="font-fredoka text-xl md:text-3xl text-slate-800 tracking-wide font-bold">Manual & Automatic Input Devices</h1>
+                    <p class="text-xs md:text-base text-slate-600 font-bold">Year 1 ICT • Interactive Presentation & 100-Pt Challenge</p>
                 </div>
             </div>
 
             <!-- Mode Selector Tabs -->
-            <div class="flex flex-wrap items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200">
-                <button id="navBtnSlides" onclick="switchTab('slides')" class="px-4 py-2 rounded-xl font-fredoka text-sm transition-all bg-indigo-500 text-white shadow-md">
+            <div class="flex flex-wrap items-center gap-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200">
+                <button id="navBtnSlides" onclick="switchTab('slides')" class="px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg transition-all bg-indigo-500 text-white shadow-md font-semibold">
                     📖 Slides (11)
                 </button>
-                <button id="navBtnDrag" onclick="switchTab('drag')" class="px-4 py-2 rounded-xl font-fredoka text-sm text-slate-600 hover:bg-slate-200 transition-all">
+                <button id="navBtnDrag" onclick="switchTab('drag')" class="px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg text-slate-700 hover:bg-slate-200 transition-all font-semibold">
                     🧩 Drag & Drop (5)
                 </button>
-                <button id="navBtnMcq" onclick="switchTab('mcq')" class="px-4 py-2 rounded-xl font-fredoka text-sm text-slate-600 hover:bg-slate-200 transition-all">
+                <button id="navBtnMcq" onclick="switchTab('mcq')" class="px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg text-slate-700 hover:bg-slate-200 transition-all font-semibold">
                     ❓ MCQ Quiz (10)
                 </button>
-                <button id="navBtnEnd" onclick="switchTab('end')" class="px-4 py-2 rounded-xl font-fredoka text-sm text-slate-600 hover:bg-slate-200 transition-all">
+                <button id="navBtnEnd" onclick="switchTab('end')" class="px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg text-slate-700 hover:bg-slate-200 transition-all font-semibold">
                     🏆 Score & Certificate
                 </button>
             </div>
 
             <!-- Audio Switch & Score Widget -->
             <div class="flex items-center gap-3">
-                <button id="audioToggleBtn" onclick="toggleAudio()" class="p-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-2xl font-bold text-sm flex items-center gap-1 shadow-sm transition">
+                <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3.5 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-2xl font-fredoka font-bold text-base flex items-center gap-1.5 shadow-sm transition">
                     🔊 <span id="audioStatusText">Sound On</span>
                 </button>
-                <div class="bg-gradient-to-r from-emerald-400 to-teal-500 text-white px-4 py-2 rounded-2xl font-fredoka text-base shadow-md flex items-center gap-2">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-2.5 rounded-2xl font-fredoka text-lg md:text-xl shadow-md flex items-center gap-2">
                     <span>⭐ Score:</span>
-                    <span id="globalScoreText" class="text-xl font-extrabold">0</span>
-                    <span class="text-xs opacity-80">/ 100</span>
+                    <span id="globalScoreText" class="text-2xl md:text-3xl font-extrabold">0</span>
+                    <span class="text-sm opacity-90 font-bold">/ 100</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto w-full flex-grow flex flex-col justify-center my-2">
+    <!-- MAIN VIEWPORT CONTENT (FILLS AVAILABLE HEIGHT) -->
+    <main class="max-w-7xl mx-auto w-full flex-1 flex flex-col justify-center overflow-hidden my-1">
 
         <!-- ==================== SECTION 1: SLIDES DECK ==================== -->
-        <div id="sectionSlides" class="w-full flex flex-col items-center">
+        <div id="sectionSlides" class="w-full h-full flex flex-col justify-between items-center overflow-y-auto p-1">
             
-            <!-- Slide Deck Header & Controls -->
-            <div class="w-full flex justify-between items-center mb-3 px-2">
-                <div class="flex items-center gap-2 font-fredoka text-slate-700">
-                    <span class="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-xs font-bold">Interactive Deck</span>
-                    <span id="slideIndicatorText" class="text-sm">Slide 1 of 11</span>
+            <!-- Slide Deck Header Controls -->
+            <div class="w-full flex justify-between items-center mb-2 px-2 shrink-0">
+                <div class="flex items-center gap-3 font-fredoka text-slate-800">
+                    <span class="bg-purple-200 text-purple-900 px-4 py-1 rounded-full text-sm md:text-base font-bold shadow-sm">Interactive Deck</span>
+                    <span id="slideIndicatorText" class="text-base md:text-xl font-bold">Slide 1 of 11</span>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="changeSlide(-1)" class="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-2xl shadow-sm text-slate-700 font-bold transition flex items-center gap-1">
+                <div class="flex gap-3">
+                    <button onclick="changeSlide(-1)" class="px-5 py-2.5 bg-white hover:bg-slate-100 border-2 border-slate-300 rounded-2xl shadow-sm text-slate-800 font-fredoka text-base md:text-lg font-bold transition flex items-center gap-1">
                         ◀ Prev
                     </button>
-                    <button onclick="changeSlide(1)" class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl shadow-md font-bold transition flex items-center gap-1">
+                    <button onclick="changeSlide(1)" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-md font-fredoka text-base md:text-lg font-bold transition flex items-center gap-1">
                         Next ▶
                     </button>
                 </div>
             </div>
 
-            <!-- Slide Viewport Box -->
-            <div id="slideContainer" class="w-full bg-white/90 backdrop-blur-lg rounded-3xl p-6 md:p-10 shadow-xl border-4 border-white min-h-[490px] flex flex-col justify-between transition-all duration-500 relative overflow-hidden">
+            <!-- Main Slide Box (Screen Fit) -->
+            <div id="slideContainer" class="w-full flex-1 bg-white/95 backdrop-blur-lg rounded-3xl p-6 md:p-10 shadow-2xl border-4 border-white flex flex-col justify-between transition-all duration-300 overflow-y-auto my-1">
                 <!-- Slide Content Inserted Dynamically via JS -->
             </div>
 
             <!-- Slide Dots Navigation Bar -->
-            <div id="slideDotsContainer" class="flex flex-wrap justify-center gap-2 mt-4">
+            <div id="slideDotsContainer" class="flex flex-wrap justify-center gap-2.5 mt-2 shrink-0">
                 <!-- Dynamic Dots -->
             </div>
         </div>
 
         <!-- ==================== SECTION 2: DRAG & DROP QUIZ ==================== -->
-        <div id="sectionDrag" class="hidden w-full flex flex-col items-center">
-            <div class="w-full bg-white/90 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-xl border-4 border-white min-h-[490px] flex flex-col justify-between">
+        <div id="sectionDrag" class="hidden w-full h-full flex flex-col justify-center items-center overflow-y-auto p-1">
+            <div class="w-full h-full bg-white/95 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-white flex flex-col justify-between overflow-y-auto">
                 <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="bg-amber-100 text-amber-800 font-fredoka px-4 py-1.5 rounded-full text-sm font-semibold">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="bg-amber-100 text-amber-900 font-fredoka px-4 py-1.5 rounded-full text-base font-bold">
                             🧩 Part 1: Drag & Drop Challenge (10 pts each)
                         </span>
-                        <span id="dragProgressText" class="font-fredoka text-slate-600 font-bold text-sm">
+                        <span id="dragProgressText" class="font-fredoka text-indigo-900 font-extrabold text-lg md:text-xl">
                             Question 1 of 5
                         </span>
                     </div>
 
-                    <h2 id="dragQuestionTitle" class="font-fredoka text-xl md:text-2xl text-slate-800 mb-2">
+                    <h2 id="dragQuestionTitle" class="font-fredoka text-2xl md:text-3xl text-slate-800 mb-2 font-bold">
                         Loading Drag & Drop...
                     </h2>
-                    <p id="dragQuestionDesc" class="text-slate-600 mb-6 text-sm md:text-base">
+                    <p id="dragQuestionDesc" class="text-slate-700 mb-4 text-base md:text-xl font-semibold">
                         Drag each item into its correct target box! (Or click an item, then click a target box).
                     </p>
 
                     <!-- Draggable Options Pool -->
-                    <div id="dragItemsPool" class="flex flex-wrap gap-3 p-4 bg-purple-50/70 border-2 border-dashed border-purple-200 rounded-2xl mb-6 min-h-[70px] items-center justify-center">
+                    <div id="dragItemsPool" class="flex flex-wrap gap-4 p-4 md:p-6 bg-purple-50/80 border-3 border-dashed border-purple-300 rounded-3xl mb-4 min-h-[90px] items-center justify-center shadow-inner">
                         <!-- Items populated via JS -->
                     </div>
 
@@ -208,12 +219,12 @@
                 </div>
 
                 <!-- Drag & Drop Action Footer -->
-                <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100">
-                    <button onclick="resetCurrentDragQuestion()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-fredoka text-sm rounded-xl transition">
+                <div class="flex justify-between items-center mt-4 pt-3 border-t-2 border-slate-100 shrink-0">
+                    <button onclick="resetCurrentDragQuestion()" class="px-5 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-fredoka text-base md:text-lg rounded-2xl font-bold transition">
                         🔄 Reset Answers
                     </button>
-                    <div id="dragFeedbackBox" class="hidden font-fredoka text-sm md:text-base font-bold"></div>
-                    <button id="dragSubmitBtn" onclick="submitDragAnswer()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:opacity-90 text-white font-fredoka text-base rounded-2xl shadow-lg transition transform hover:scale-105">
+                    <div id="dragFeedbackBox" class="hidden font-fredoka text-lg md:text-2xl font-extrabold"></div>
+                    <button id="dragSubmitBtn" onclick="submitDragAnswer()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-fredoka text-lg md:text-xl rounded-2xl shadow-xl transition transform hover:scale-105 font-bold">
                         Check Answer ✨
                     </button>
                 </div>
@@ -221,38 +232,38 @@
         </div>
 
         <!-- ==================== SECTION 3: MULTIPLE CHOICE QUIZ ==================== -->
-        <div id="sectionMcq" class="hidden w-full flex flex-col items-center">
-            <div class="w-full bg-white/90 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-xl border-4 border-white min-h-[490px] flex flex-col justify-between">
+        <div id="sectionMcq" class="hidden w-full h-full flex flex-col justify-center items-center overflow-y-auto p-1">
+            <div class="w-full h-full bg-white/95 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-white flex flex-col justify-between overflow-y-auto">
                 <div>
                     <div class="flex justify-between items-center mb-4">
-                        <span class="bg-blue-100 text-blue-800 font-fredoka px-4 py-1.5 rounded-full text-sm font-semibold">
+                        <span class="bg-blue-100 text-blue-900 font-fredoka px-4 py-1.5 rounded-full text-base font-bold">
                             ❓ Part 2: Multiple Choice Quiz (5 pts each)
                         </span>
-                        <span id="mcqProgressText" class="font-fredoka text-slate-600 font-bold text-sm">
+                        <span id="mcqProgressText" class="font-fredoka text-indigo-900 font-extrabold text-lg md:text-xl">
                             Question 1 of 10
                         </span>
                     </div>
 
                     <!-- Question Card -->
-                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl border border-indigo-100 mb-6">
-                        <h2 id="mcqQuestionText" class="font-fredoka text-xl md:text-2xl text-slate-800 leading-snug">
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 md:p-8 rounded-3xl border-2 border-indigo-200 mb-6 shadow-sm">
+                        <h2 id="mcqQuestionText" class="font-fredoka text-2xl md:text-3xl text-slate-800 leading-snug font-bold">
                             Question loading...
                         </h2>
                     </div>
 
                     <!-- MCQ Choices Grid -->
-                    <div id="mcqChoicesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="mcqChoicesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                         <!-- Choice buttons populated by JS -->
                     </div>
                 </div>
 
                 <!-- MCQ Bottom Navigation -->
-                <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100">
-                    <button id="mcqPrevBtn" onclick="navigateMcq(-1)" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-fredoka rounded-2xl transition">
+                <div class="flex justify-between items-center mt-4 pt-3 border-t-2 border-slate-100 shrink-0">
+                    <button id="mcqPrevBtn" onclick="navigateMcq(-1)" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-fredoka text-base md:text-lg font-bold rounded-2xl transition">
                         ◀ Previous
                     </button>
-                    <div id="mcqFeedbackText" class="font-fredoka text-sm md:text-base font-bold"></div>
-                    <button id="mcqNextBtn" onclick="navigateMcq(1)" class="px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white font-fredoka rounded-2xl shadow-md transition">
+                    <div id="mcqFeedbackText" class="font-fredoka text-lg md:text-xl font-bold"></div>
+                    <button id="mcqNextBtn" onclick="navigateMcq(1)" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka text-lg md:text-xl rounded-2xl shadow-lg transition font-bold">
                         Next Question ▶
                     </button>
                 </div>
@@ -260,70 +271,76 @@
         </div>
 
         <!-- ==================== SECTION 4: APPRECIATION & CERTIFICATE ==================== -->
-        <div id="sectionEnd" class="hidden w-full flex flex-col items-center">
-            <div class="w-full bg-white/95 backdrop-blur-lg rounded-3xl p-6 md:p-10 shadow-2xl border-4 border-amber-200 text-center flex flex-col items-center">
+        <div id="sectionEnd" class="hidden w-full h-full flex flex-col justify-center items-center overflow-y-auto p-1">
+            <div class="w-full h-full bg-white/95 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-amber-200 text-center flex flex-col items-center justify-between overflow-y-auto">
                 
-                <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-5xl mb-4 animate-bounce">
-                    🏆
+                <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-5xl mb-2 animate-bounce">
+                        🏆
+                    </div>
+
+                    <h2 class="font-fredoka text-3xl md:text-4xl text-amber-600 font-extrabold mb-1">
+                        Awesome Job Input Device Expert!
+                    </h2>
+                    <p class="text-slate-700 text-base md:text-lg font-semibold max-w-xl mb-4">
+                        You completed the Manual & Automatic Input Devices lesson and quiz!
+                    </p>
                 </div>
 
-                <h2 class="font-fredoka text-3xl md:text-4xl text-amber-600 mb-2">
-                    Awesome Job Input Device Expert!
-                </h2>
-                <p class="text-slate-600 max-w-lg mb-6">
-                    You completed the Manual & Automatic Input Devices lesson and quiz! Here is your total achievement score:
-                </p>
-
-                <!-- Big Score Summary Box -->
-                <div class="bg-gradient-to-r from-amber-50 via-yellow-100 to-amber-50 border-2 border-amber-300 p-6 rounded-3xl shadow-inner mb-6 w-full max-w-md">
-                    <div class="text-xs uppercase tracking-widest text-amber-800 font-bold mb-1">Total Final Score</div>
-                    <div class="font-fredoka text-6xl text-amber-600 font-extrabold my-2">
-                        <span id="finalScoreDisplay">0</span> <span class="text-3xl text-amber-800">/ 100</span>
-                    </div>
-                    <div id="finalBadgeMessage" class="font-fredoka text-lg text-emerald-700 font-bold mt-2">
-                        🌟 Outstanding Effort!
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-amber-200/60 text-xs md:text-sm font-semibold text-slate-700">
-                        <div class="bg-white/80 p-2.5 rounded-xl">
-                            🧩 Drag & Drop: <span id="scoreBreakdownDrag" class="font-bold text-indigo-600">0 / 50</span>
+                <!-- Big Score Summary Box & Certificate Layout -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl items-center my-2">
+                    <!-- Left: Score Panel -->
+                    <div class="bg-gradient-to-r from-amber-50 via-yellow-100 to-amber-50 border-3 border-amber-300 p-6 rounded-3xl shadow-inner flex flex-col items-center justify-center">
+                        <div class="text-sm uppercase tracking-widest text-amber-900 font-black mb-1">Total Final Score</div>
+                        <div class="font-fredoka text-6xl md:text-7xl text-amber-600 font-black my-1">
+                            <span id="finalScoreDisplay">0</span> <span class="text-3xl text-amber-800 font-bold">/ 100</span>
                         </div>
-                        <div class="bg-white/80 p-2.5 rounded-xl">
-                            ❓ MCQ Quiz: <span id="scoreBreakdownMcq" class="font-bold text-indigo-600">0 / 50</span>
+                        <div id="finalBadgeMessage" class="font-fredoka text-xl text-emerald-700 font-bold mt-2">
+                            🌟 Outstanding Effort!
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t-2 border-amber-200/80 w-full text-sm md:text-base font-bold text-slate-800">
+                            <div class="bg-white/90 p-3 rounded-2xl shadow-xs">
+                                🧩 Drag & Drop:<br><span id="scoreBreakdownDrag" class="font-extrabold text-indigo-700 text-lg">0 / 50</span>
+                            </div>
+                            <div class="bg-white/90 p-3 rounded-2xl shadow-xs">
+                                ❓ MCQ Quiz:<br><span id="scoreBreakdownMcq" class="font-extrabold text-indigo-700 text-lg">0 / 50</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Printable Name Input Certificate -->
-                <div class="bg-purple-50/80 border-2 border-purple-200 rounded-2xl p-4 mb-6 w-full max-w-md">
-                    <label class="block font-fredoka text-sm text-purple-900 mb-2">Type Student's Name for Certificate:</label>
-                    <input type="text" id="studentNameInput" value="Little ICT Master" oninput="updateCertificateName()" class="w-full px-4 py-2 text-center rounded-xl font-fredoka text-lg border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400">
-                </div>
+                    <!-- Right: Printable Name Input & Certificate Visual -->
+                    <div class="flex flex-col items-center">
+                        <div class="bg-purple-50 border-2 border-purple-300 rounded-2xl p-3 mb-4 w-full">
+                            <label class="block font-fredoka text-base text-purple-900 font-bold mb-1">Type Student's Name for Certificate:</label>
+                            <input type="text" id="studentNameInput" value="Little ICT Master" oninput="updateCertificateName()" class="w-full px-4 py-2 text-center rounded-xl font-fredoka text-xl border-2 border-purple-400 font-bold text-purple-900 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                        </div>
 
-                <!-- Certificate Visual Preview -->
-                <div class="bg-white border-8 border-dashed border-amber-300 p-6 rounded-3xl shadow-md w-full max-w-xl mb-8 transform rotate-[-0.5deg]">
-                    <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">Official Certificate of Achievement</div>
-                    <h3 class="font-fredoka text-2xl text-indigo-600 mt-2">Input Devices Genius</h3>
-                    <p class="text-slate-500 text-xs my-1">This certifies that</p>
-                    <div id="certificateStudentName" class="font-fredoka text-2xl text-pink-500 font-extrabold my-2 border-b-2 border-pink-200 inline-block px-6 pb-1">
-                        Little ICT Master
-                    </div>
-                    <p class="text-slate-600 text-sm">has mastered Manual & Automatic Input Devices and earned <strong id="certScoreText">0</strong>/100 points!</p>
-                    <div class="flex justify-between items-center mt-6 text-xs text-slate-400 font-semibold px-4">
-                        <span>Teacher Signature: ⭐⭐⭐⭐⭐</span>
-                        <span>Year 1 ICT Mastery</span>
+                        <div class="bg-white border-8 border-dashed border-amber-300 p-6 rounded-3xl shadow-lg w-full transform rotate-[-0.5deg]">
+                            <div class="text-xs text-slate-400 uppercase tracking-widest font-black">Official Certificate of Achievement</div>
+                            <h3 class="font-fredoka text-2xl md:text-3xl text-indigo-600 font-bold my-1">Input Devices Genius</h3>
+                            <p class="text-slate-500 text-xs font-bold">This certifies that</p>
+                            <div id="certificateStudentName" class="font-fredoka text-2xl md:text-3xl text-pink-600 font-extrabold my-2 border-b-4 border-pink-200 inline-block px-6 pb-1">
+                                Little ICT Master
+                            </div>
+                            <p class="text-slate-700 text-sm md:text-base font-semibold">has mastered Manual & Automatic Input Devices and earned <strong id="certScoreText" class="text-indigo-600 text-lg">0</strong>/100 points!</p>
+                            <div class="flex justify-between items-center mt-4 text-xs text-slate-400 font-bold px-2">
+                                <span>Teacher Signature: ⭐⭐⭐⭐⭐</span>
+                                <span>Year 1 ICT Mastery</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-4 justify-center">
-                    <button onclick="playFanfareSound()" class="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-amber-950 font-fredoka text-base rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center gap-2">
+                <div class="flex flex-wrap gap-4 justify-center mt-2 shrink-0">
+                    <button onclick="playFanfareSound()" class="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-amber-950 font-fredoka text-base md:text-lg font-bold rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center gap-2">
                         🎺 Play Celebration Sound!
                     </button>
-                    <button onclick="resetAllQuizzes()" class="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-fredoka text-base rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center gap-2">
+                    <button onclick="resetAllQuizzes()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka text-base md:text-lg font-bold rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center gap-2">
                         🔄 Retake Quiz
                     </button>
-                    <button onclick="switchTab('slides')" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-fredoka text-base rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center gap-2">
+                    <button onclick="switchTab('slides')" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-fredoka text-base md:text-lg font-bold rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center gap-2">
                         📖 Review Slides
                     </button>
                 </div>
@@ -333,7 +350,8 @@
 
     </main>
 
-    <footer class="max-w-6xl mx-auto w-full text-center text-xs text-slate-500 py-3 font-semibold">
+    <!-- FOOTER -->
+    <footer class="max-w-7xl mx-auto w-full text-center text-xs md:text-sm text-slate-600 font-bold py-1 shrink-0">
         Year 1 ICT Curriculum • Interactive Learning Deck & Quiz • Soft Pastel Edition
     </footer>
 
@@ -407,13 +425,13 @@
                 subtitle: "Slide 1 of 11 • Title",
                 bgColor: "bg-gradient-to-br from-pastelPurple to-pastelPink",
                 content: `
-                    <div class="text-center py-4 flex flex-col items-center">
-                        <div class="text-7xl md:text-8xl mb-4 animate-bounceSlow">⌨️🖱️📑🌡️</div>
-                        <h2 class="font-fredoka text-3xl md:text-4xl text-slate-800 mb-3">Welcome to Input Devices!</h2>
-                        <p class="text-slate-600 text-base md:text-lg max-w-xl mb-6 leading-relaxed">
+                    <div class="text-center py-6 flex flex-col items-center justify-center h-full">
+                        <div class="text-8xl md:text-9xl mb-6 animate-bounceSlow">⌨️🖱️📑🌡️</div>
+                        <h2 class="font-fredoka text-4xl md:text-6xl text-slate-800 font-extrabold mb-4">Welcome to Input Devices!</h2>
+                        <p class="text-slate-700 text-xl md:text-2xl font-semibold max-w-3xl mb-8 leading-relaxed">
                             How do computers get information from us and the world around them? Let's discover <strong>Manual</strong> and <strong>Automatic</strong> input devices!
                         </p>
-                        <button onclick="changeSlide(1)" class="px-8 py-3.5 bg-indigo-500 hover:bg-indigo-600 text-white font-fredoka text-lg rounded-2xl shadow-xl transition transform hover:scale-105">
+                        <button onclick="changeSlide(1)" class="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka text-xl md:text-2xl font-bold rounded-2xl shadow-xl transition transform hover:scale-105">
                             Start Presentation 🚀
                         </button>
                     </div>
@@ -424,33 +442,33 @@
                 subtitle: "Slide 2 of 11",
                 bgColor: "bg-gradient-to-br from-pastelBlue to-pastelMint",
                 content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
                         <div>
-                            <h3 class="font-fredoka text-2xl text-indigo-700 mb-3">Sending Information to Computers!</h3>
-                            <p class="text-slate-700 text-base mb-4 leading-relaxed">
+                            <h3 class="font-fredoka text-3xl md:text-4xl text-indigo-800 font-extrabold mb-4">Sending Information to Computers!</h3>
+                            <p class="text-slate-700 text-lg md:text-2xl font-semibold mb-6 leading-relaxed">
                                 Input devices help us interact with computers. They <strong>send information</strong> into the computer so it knows what to do!
                             </p>
-                            <div class="space-y-3">
-                                <div class="p-3 bg-white/80 rounded-2xl border border-indigo-100 shadow-sm flex items-center gap-3">
-                                    <span class="text-3xl">🖐️</span>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-white/90 rounded-2xl border-2 border-indigo-200 shadow-sm flex items-center gap-4">
+                                    <span class="text-4xl md:text-5xl">🖐️</span>
                                     <div>
-                                        <div class="font-fredoka text-indigo-900 text-sm">Manual Input Devices</div>
-                                        <div class="text-xs text-slate-500">Controlled directly by human hands</div>
+                                        <div class="font-fredoka text-indigo-900 text-xl md:text-2xl font-bold">Manual Input Devices</div>
+                                        <div class="text-sm md:text-lg text-slate-600 font-semibold">Controlled directly by human hands</div>
                                     </div>
                                 </div>
-                                <div class="p-3 bg-white/80 rounded-2xl border border-indigo-100 shadow-sm flex items-center gap-3">
-                                    <span class="text-3xl">🤖</span>
+                                <div class="p-4 bg-white/90 rounded-2xl border-2 border-indigo-200 shadow-sm flex items-center gap-4">
+                                    <span class="text-4xl md:text-5xl">🤖</span>
                                     <div>
-                                        <div class="font-fredoka text-teal-900 text-sm">Automatic Input Devices</div>
-                                        <div class="text-xs text-slate-500">Work by themselves to capture data</div>
+                                        <div class="font-fredoka text-teal-900 text-xl md:text-2xl font-bold">Automatic Input Devices</div>
+                                        <div class="text-sm md:text-lg text-slate-600 font-semibold">Work by themselves to capture data</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-lg text-center border-4 border-indigo-100">
-                            <div class="text-7xl mb-2 animate-float">📨 ➔ 🖥️</div>
-                            <span class="font-fredoka text-indigo-600 text-xl block mb-2">Remember!</span>
-                            <p class="text-xs text-slate-500">An input device always sends information <strong>INTO</strong> the computer brain!</p>
+                        <div class="bg-white p-8 rounded-3xl shadow-xl text-center border-4 border-indigo-200">
+                            <div class="text-8xl md:text-9xl mb-4 animate-float">📨 ➔ 🖥️</div>
+                            <span class="font-fredoka text-indigo-700 text-2xl md:text-3xl font-extrabold block mb-2">Remember!</span>
+                            <p class="text-base md:text-xl text-slate-700 font-bold">An input device always sends information <strong>INTO</strong> the computer brain!</p>
                         </div>
                     </div>
                 `
@@ -460,22 +478,22 @@
                 subtitle: "Slide 3 of 11",
                 bgColor: "bg-gradient-to-br from-pastelYellow to-pastelOrange",
                 content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
                         <div>
-                            <span class="bg-amber-200 text-amber-900 font-bold px-3 py-1 rounded-full text-xs">Human Control</span>
-                            <h3 class="font-fredoka text-2xl text-amber-800 my-2">Devices You Control by Hand</h3>
-                            <p class="text-slate-700 text-sm md:text-base leading-relaxed mb-4">
-                                With manual devices, <strong>you decision-make and tell</strong> the computer exactly what information to send using your hands!
+                            <span class="bg-amber-200 text-amber-950 font-black px-4 py-1.5 rounded-full text-sm md:text-base">Human Control</span>
+                            <h3 class="font-fredoka text-3xl md:text-4xl text-amber-900 font-extrabold my-3">Devices You Control by Hand</h3>
+                            <p class="text-slate-800 text-lg md:text-2xl font-semibold leading-relaxed mb-6">
+                                With manual devices, <strong>you make the decision and tell</strong> the computer exactly what information to send using your hands!
                             </p>
-                            <div class="bg-white/80 p-4 rounded-2xl border border-amber-200 text-sm text-slate-700 space-y-2">
-                                <div class="flex items-center gap-2">✨ You choose when to press buttons.</div>
-                                <div class="flex items-center gap-2">✨ You guide where the cursor moves.</div>
-                                <div class="flex items-center gap-2">✨ You decide what words to type!</div>
+                            <div class="bg-white/90 p-5 rounded-2xl border-2 border-amber-300 text-base md:text-xl font-bold text-slate-800 space-y-3">
+                                <div class="flex items-center gap-3">✨ You choose when to press buttons.</div>
+                                <div class="flex items-center gap-3">✨ You guide where the cursor moves.</div>
+                                <div class="flex items-center gap-3">✨ You decide what words to type!</div>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-lg border-4 border-amber-200 text-center">
-                            <div class="text-7xl mb-2 animate-bounceSlow">⌨️ 🖱️ 🕹️</div>
-                            <p class="font-fredoka text-amber-800 text-base mt-2">Keyboard • Mouse • Joystick</p>
+                        <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-amber-300 text-center">
+                            <div class="text-8xl md:text-9xl mb-4 animate-bounceSlow">⌨️ 🖱️ 🕹️</div>
+                            <p class="font-fredoka text-amber-900 text-2xl md:text-3xl font-extrabold mt-2">Keyboard • Mouse • Joystick</p>
                         </div>
                     </div>
                 `
@@ -485,21 +503,21 @@
                 subtitle: "Slide 4 of 11",
                 bgColor: "bg-gradient-to-br from-pastelOrange to-pastelPink",
                 content: `
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                        <div class="bg-white/90 p-5 rounded-2xl border-2 border-pink-200 shadow-md hover:scale-105 transition">
-                            <div class="text-5xl mb-2">⌨️</div>
-                            <h4 class="font-fredoka text-indigo-700 text-base mb-1">Keyboard</h4>
-                            <p class="text-xs text-slate-600">Type letters, numbers, and symbols into the computer.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center items-center h-full">
+                        <div class="bg-white/95 p-6 md:p-8 rounded-3xl border-4 border-pink-200 shadow-xl hover:scale-105 transition">
+                            <div class="text-6xl md:text-7xl mb-3">⌨️</div>
+                            <h4 class="font-fredoka text-indigo-800 text-2xl md:text-3xl font-extrabold mb-2">Keyboard</h4>
+                            <p class="text-base md:text-lg text-slate-700 font-bold">Type letters, numbers, and symbols into the computer.</p>
                         </div>
-                        <div class="bg-white/90 p-5 rounded-2xl border-2 border-pink-200 shadow-md hover:scale-105 transition">
-                            <div class="text-5xl mb-2">🖱️</div>
-                            <h4 class="font-fredoka text-indigo-700 text-base mb-1">Mouse</h4>
-                            <p class="text-xs text-slate-600">Move the screen cursor and click on buttons.</p>
+                        <div class="bg-white/95 p-6 md:p-8 rounded-3xl border-4 border-pink-200 shadow-xl hover:scale-105 transition">
+                            <div class="text-6xl md:text-7xl mb-3">🖱️</div>
+                            <h4 class="font-fredoka text-indigo-800 text-2xl md:text-3xl font-extrabold mb-2">Mouse</h4>
+                            <p class="text-base md:text-lg text-slate-700 font-bold">Move the screen cursor and click on buttons.</p>
                         </div>
-                        <div class="bg-white/90 p-5 rounded-2xl border-2 border-pink-200 shadow-md hover:scale-105 transition">
-                            <div class="text-5xl mb-2">🕹️</div>
-                            <h4 class="font-fredoka text-indigo-700 text-base mb-1">Joystick</h4>
-                            <p class="text-xs text-slate-600">Control characters in games and flight simulations.</p>
+                        <div class="bg-white/95 p-6 md:p-8 rounded-3xl border-4 border-pink-200 shadow-xl hover:scale-105 transition">
+                            <div class="text-6xl md:text-7xl mb-3">🕹️</div>
+                            <h4 class="font-fredoka text-indigo-800 text-2xl md:text-3xl font-extrabold mb-2">Joystick</h4>
+                            <p class="text-base md:text-lg text-slate-700 font-bold">Control characters in games and flight simulations.</p>
                         </div>
                     </div>
                 `
@@ -509,22 +527,22 @@
                 subtitle: "Slide 5 of 11",
                 bgColor: "bg-gradient-to-br from-pastelMint to-pastelBlue",
                 content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
                         <div>
-                            <span class="bg-teal-200 text-teal-900 font-bold px-3 py-1 rounded-full text-xs">Self-Working</span>
-                            <h3 class="font-fredoka text-2xl text-teal-800 my-2">Devices That Work on Their Own</h3>
-                            <p class="text-slate-700 text-sm md:text-base leading-relaxed mb-4">
+                            <span class="bg-teal-200 text-teal-950 font-black px-4 py-1.5 rounded-full text-sm md:text-base">Self-Working</span>
+                            <h3 class="font-fredoka text-3xl md:text-4xl text-teal-900 font-extrabold my-3">Devices That Work on Their Own</h3>
+                            <p class="text-slate-800 text-lg md:text-2xl font-semibold leading-relaxed mb-6">
                                 Automatic devices collect information <strong>without needing you to type</strong> or click continuously!
                             </p>
-                            <div class="bg-white/80 p-4 rounded-2xl border border-teal-200 text-sm text-slate-700 space-y-2">
-                                <div class="flex items-center gap-2">⚡ They capture data super fast.</div>
-                                <div class="flex items-center gap-2">⚡ They work continuously in the background.</div>
-                                <div class="flex items-center gap-2">⚡ They reduce typing mistakes!</div>
+                            <div class="bg-white/90 p-5 rounded-2xl border-2 border-teal-300 text-base md:text-xl font-bold text-slate-800 space-y-3">
+                                <div class="flex items-center gap-3">⚡ They capture data super fast.</div>
+                                <div class="flex items-center gap-3">⚡ They work continuously in the background.</div>
+                                <div class="flex items-center gap-3">⚡ They reduce typing mistakes!</div>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-lg border-4 border-teal-200 text-center">
-                            <div class="text-7xl mb-2 animate-float">📑 🏷️ 🌡️</div>
-                            <p class="font-fredoka text-teal-800 text-base mt-2">Scanner • Barcode Reader • Sensors</p>
+                        <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-teal-300 text-center">
+                            <div class="text-8xl md:text-9xl mb-4 animate-float">📑 🏷️ 🌡️</div>
+                            <p class="font-fredoka text-teal-900 text-2xl md:text-3xl font-extrabold mt-2">Scanner • Barcode Reader • Sensors</p>
                         </div>
                     </div>
                 `
@@ -534,21 +552,21 @@
                 subtitle: "Slide 6 of 11",
                 bgColor: "bg-gradient-to-br from-pastelPurple to-pastelMint",
                 content: `
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                        <div class="bg-white/90 p-5 rounded-2xl border-2 border-teal-200 shadow-md hover:scale-105 transition">
-                            <div class="text-5xl mb-2">📑</div>
-                            <h4 class="font-fredoka text-teal-800 text-base mb-1">Scanner</h4>
-                            <p class="text-xs text-slate-600">Copies paper documents and pictures into digital computer files.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center items-center h-full">
+                        <div class="bg-white/95 p-6 md:p-8 rounded-3xl border-4 border-teal-200 shadow-xl hover:scale-105 transition">
+                            <div class="text-6xl md:text-7xl mb-3">📑</div>
+                            <h4 class="font-fredoka text-teal-900 text-2xl md:text-3xl font-extrabold mb-2">Scanner</h4>
+                            <p class="text-base md:text-lg text-slate-700 font-bold">Copies paper documents and pictures into digital computer files.</p>
                         </div>
-                        <div class="bg-white/90 p-5 rounded-2xl border-2 border-teal-200 shadow-md hover:scale-105 transition">
-                            <div class="text-5xl mb-2">🏷️</div>
-                            <h4 class="font-fredoka text-teal-800 text-base mb-1">Barcode Reader</h4>
-                            <p class="text-xs text-slate-600">Reads black barcode lines on supermarket products instantly.</p>
+                        <div class="bg-white/95 p-6 md:p-8 rounded-3xl border-4 border-teal-200 shadow-xl hover:scale-105 transition">
+                            <div class="text-6xl md:text-7xl mb-3">🏷️</div>
+                            <h4 class="font-fredoka text-teal-900 text-2xl md:text-3xl font-extrabold mb-2">Barcode Reader</h4>
+                            <p class="text-base md:text-lg text-slate-700 font-bold">Reads black barcode lines on supermarket products instantly.</p>
                         </div>
-                        <div class="bg-white/90 p-5 rounded-2xl border-2 border-teal-200 shadow-md hover:scale-105 transition">
-                            <div class="text-5xl mb-2">🌡️</div>
-                            <h4 class="font-fredoka text-teal-800 text-base mb-1">Sensors</h4>
-                            <p class="text-xs text-slate-600">Detect changes in heat, light, or movement around them.</p>
+                        <div class="bg-white/95 p-6 md:p-8 rounded-3xl border-4 border-teal-200 shadow-xl hover:scale-105 transition">
+                            <div class="text-6xl md:text-7xl mb-3">🌡️</div>
+                            <h4 class="font-fredoka text-teal-900 text-2xl md:text-3xl font-extrabold mb-2">Sensors</h4>
+                            <p class="text-base md:text-lg text-slate-700 font-bold">Detect changes in heat, light, or movement around them.</p>
                         </div>
                     </div>
                 `
@@ -558,31 +576,31 @@
                 subtitle: "Slide 7 of 11",
                 bgColor: "bg-gradient-to-br from-pastelPink to-pastelYellow",
                 content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-5 rounded-3xl border-4 border-pink-200 shadow-md">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-3xl">🖐️</span>
-                                <h3 class="font-fredoka text-xl text-pink-700">Manual Devices</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center">
+                        <div class="bg-white p-6 md:p-8 rounded-3xl border-4 border-pink-300 shadow-lg">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-4xl md:text-5xl">🖐️</span>
+                                <h3 class="font-fredoka text-2xl md:text-3xl text-pink-700 font-extrabold">Manual Devices</h3>
                             </div>
-                            <ul class="space-y-2 text-sm text-slate-700">
+                            <ul class="space-y-3 text-base md:text-xl font-bold text-slate-800">
                                 <li>✅ Needs human hands & control</li>
                                 <li>✅ You decide what is typed/clicked</li>
                                 <li>✅ Examples: Keyboard ⌨️, Mouse 🖱️</li>
                             </ul>
                         </div>
-                        <div class="bg-white p-5 rounded-3xl border-4 border-teal-200 shadow-md">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-3xl">🤖</span>
-                                <h3 class="font-fredoka text-xl text-teal-700">Automatic Devices</h3>
+                        <div class="bg-white p-6 md:p-8 rounded-3xl border-4 border-teal-300 shadow-lg">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-4xl md:text-5xl">🤖</span>
+                                <h3 class="font-fredoka text-2xl md:text-3xl text-teal-800 font-extrabold">Automatic Devices</h3>
                             </div>
-                            <ul class="space-y-2 text-sm text-slate-700">
+                            <ul class="space-y-3 text-base md:text-xl font-bold text-slate-800">
                                 <li>⚡ Works automatically by itself</li>
                                 <li>⚡ Fast data collection</li>
                                 <li>⚡ Examples: Barcode scanner 🏷️, Sensors 🌡️</li>
                             </ul>
                         </div>
                     </div>
-                    <div class="mt-4 p-3 bg-purple-100/80 rounded-2xl text-center text-xs font-bold text-purple-900 border border-purple-200">
+                    <div class="mt-4 p-4 bg-purple-100/90 rounded-2xl text-center text-base md:text-lg font-black text-purple-900 border-2 border-purple-300">
                         🌟 Both Manual and Automatic devices do the same main job: Send information INTO the computer!
                     </div>
                 `
@@ -592,22 +610,22 @@
                 subtitle: "Slide 8 of 11",
                 bgColor: "bg-gradient-to-br from-pastelYellow to-pastelPurple",
                 content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
                         <div>
-                            <span class="bg-purple-200 text-purple-900 font-bold px-3 py-1 rounded-full text-xs">Full Personal Control</span>
-                            <h3 class="font-fredoka text-2xl text-purple-800 my-2">Great for Creative & Detailed Tasks</h3>
-                            <p class="text-slate-700 text-sm leading-relaxed mb-3">
+                            <span class="bg-purple-200 text-purple-950 font-black px-4 py-1.5 rounded-full text-sm md:text-base">Full Personal Control</span>
+                            <h3 class="font-fredoka text-3xl md:text-4xl text-purple-900 font-extrabold my-3">Great for Creative & Detailed Tasks</h3>
+                            <p class="text-slate-800 text-lg md:text-2xl font-semibold leading-relaxed mb-4">
                                 Sometimes you need human imagination, precise control, and exact decisions!
                             </p>
-                            <div class="space-y-2 text-xs md:text-sm text-slate-700">
-                                <div class="bg-white/80 p-2.5 rounded-xl border border-purple-100">✍️ <strong>Writing stories:</strong> Typing your own ideas with a keyboard.</div>
-                                <div class="bg-white/80 p-2.5 rounded-xl border border-purple-100">🎨 <strong>Drawing art:</strong> Guiding line details with a mouse or graphics tablet.</div>
-                                <div class="bg-white/80 p-2.5 rounded-xl border border-purple-100">🎮 <strong>Gaming:</strong> Steering characters accurately with a joystick.</div>
+                            <div class="space-y-3 text-base md:text-xl font-bold text-slate-800">
+                                <div class="bg-white/90 p-3.5 rounded-2xl border-2 border-purple-200">✍️ <strong>Writing stories:</strong> Typing your own ideas with a keyboard.</div>
+                                <div class="bg-white/90 p-3.5 rounded-2xl border-2 border-purple-200">🎨 <strong>Drawing art:</strong> Guiding line details with a mouse or graphics tablet.</div>
+                                <div class="bg-white/90 p-3.5 rounded-2xl border-2 border-purple-200">🎮 <strong>Gaming:</strong> Steering characters accurately with a joystick.</div>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-lg border-4 border-purple-200 text-center">
-                            <div class="text-7xl mb-2 animate-float">🎨✍️🎮</div>
-                            <p class="font-fredoka text-purple-700 text-sm">Best for: Creativity and human choice!</p>
+                        <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-purple-300 text-center">
+                            <div class="text-8xl md:text-9xl mb-4 animate-float">🎨✍️🎮</div>
+                            <p class="font-fredoka text-purple-800 text-2xl font-extrabold">Best for: Creativity and human choice!</p>
                         </div>
                     </div>
                 `
@@ -617,22 +635,22 @@
                 subtitle: "Slide 9 of 11",
                 bgColor: "bg-gradient-to-br from-pastelMint to-pastelPink",
                 content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
                         <div>
-                            <span class="bg-emerald-200 text-emerald-900 font-bold px-3 py-1 rounded-full text-xs">Speed & Accuracy</span>
-                            <h3 class="font-fredoka text-2xl text-emerald-800 my-2">Fast, Efficient & Fewer Mistakes</h3>
-                            <p class="text-slate-700 text-sm leading-relaxed mb-3">
+                            <span class="bg-emerald-200 text-emerald-950 font-black px-4 py-1.5 rounded-full text-sm md:text-base">Speed & Accuracy</span>
+                            <h3 class="font-fredoka text-3xl md:text-4xl text-emerald-900 font-extrabold my-3">Fast, Efficient & Fewer Mistakes</h3>
+                            <p class="text-slate-800 text-lg md:text-2xl font-semibold leading-relaxed mb-4">
                                 Automatic devices are awesome when there is too much data for humans to type quickly!
                             </p>
-                            <div class="space-y-2 text-xs md:text-sm text-slate-700">
-                                <div class="bg-white/80 p-2.5 rounded-xl border border-emerald-100">🛒 <strong>Supermarkets:</strong> Barcode reader scans items in 1 second!</div>
-                                <div class="bg-white/80 p-2.5 rounded-xl border border-emerald-100">📑 <strong>Digital Copies:</strong> Scanner converts paper pages automatically.</div>
-                                <div class="bg-white/80 p-2.5 rounded-xl border border-emerald-100">🚪 <strong>Automatic Doors:</strong> Sensors detect humans and open doors.</div>
+                            <div class="space-y-3 text-base md:text-xl font-bold text-slate-800">
+                                <div class="bg-white/90 p-3.5 rounded-2xl border-2 border-emerald-200">🛒 <strong>Supermarkets:</strong> Barcode reader scans items in 1 second!</div>
+                                <div class="bg-white/90 p-3.5 rounded-2xl border-2 border-emerald-200">📑 <strong>Digital Copies:</strong> Scanner converts paper pages automatically.</div>
+                                <div class="bg-white/90 p-3.5 rounded-2xl border-2 border-emerald-200">🚪 <strong>Automatic Doors:</strong> Sensors detect humans and open doors.</div>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-lg border-4 border-emerald-200 text-center">
-                            <div class="text-7xl mb-2 animate-bounceSlow">🛒📑🚪</div>
-                            <p class="font-fredoka text-emerald-700 text-sm">Best for: Speed, safety, and saving time!</p>
+                        <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-emerald-300 text-center">
+                            <div class="text-8xl md:text-9xl mb-4 animate-bounceSlow">🛒📑🚪</div>
+                            <p class="font-fredoka text-emerald-800 text-2xl font-extrabold">Best for: Speed, safety, and saving time!</p>
                         </div>
                     </div>
                 `
@@ -642,30 +660,30 @@
                 subtitle: "Slide 10 of 11",
                 bgColor: "bg-gradient-to-br from-pastelOrange to-pastelBlue",
                 content: `
-                    <div class="text-center">
-                        <h3 class="font-fredoka text-2xl text-slate-800 mb-2">Can you classify these devices?</h3>
-                        <p class="text-xs md:text-sm text-slate-600 mb-4">Click each device card below to reveal if it is Manual or Automatic!</p>
+                    <div class="text-center h-full flex flex-col justify-center">
+                        <h3 class="font-fredoka text-3xl md:text-4xl text-slate-800 font-extrabold mb-2">Can you classify these devices?</h3>
+                        <p class="text-base md:text-xl text-slate-700 font-bold mb-6">Click each device card below to reveal if it is Manual or Automatic!</p>
                         
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div onclick="toggleCardReveal(this, 'Manual 🖐️', 'You click and move with hand')" class="cursor-pointer bg-white p-4 rounded-2xl border-2 border-indigo-200 shadow-md hover:scale-105 transition">
-                                <div class="text-4xl mb-1">🖱️</div>
-                                <div class="font-fredoka text-sm text-indigo-900">Computer Mouse</div>
-                                <div class="reveal-text text-xs text-indigo-600 font-bold mt-2">Tap to reveal!</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+                            <div onclick="toggleCardReveal(this, 'Manual 🖐️', 'You click and move with hand')" class="cursor-pointer bg-white p-6 rounded-3xl border-3 border-indigo-200 shadow-lg hover:scale-105 transition">
+                                <div class="text-6xl mb-2">🖱️</div>
+                                <div class="font-fredoka text-lg md:text-xl text-indigo-900 font-extrabold">Computer Mouse</div>
+                                <div class="reveal-text text-sm md:text-base text-indigo-600 font-bold mt-2">Tap to reveal!</div>
                             </div>
-                            <div onclick="toggleCardReveal(this, 'Automatic 🤖', 'Reads barcode lines instantly')" class="cursor-pointer bg-white p-4 rounded-2xl border-2 border-teal-200 shadow-md hover:scale-105 transition">
-                                <div class="text-4xl mb-1">🏷️</div>
-                                <div class="font-fredoka text-sm text-teal-900">Barcode Reader</div>
-                                <div class="reveal-text text-xs text-teal-600 font-bold mt-2">Tap to reveal!</div>
+                            <div onclick="toggleCardReveal(this, 'Automatic 🤖', 'Reads barcode lines instantly')" class="cursor-pointer bg-white p-6 rounded-3xl border-3 border-teal-200 shadow-lg hover:scale-105 transition">
+                                <div class="text-6xl mb-2">🏷️</div>
+                                <div class="font-fredoka text-lg md:text-xl text-teal-900 font-extrabold">Barcode Reader</div>
+                                <div class="reveal-text text-sm md:text-base text-teal-600 font-bold mt-2">Tap to reveal!</div>
                             </div>
-                            <div onclick="toggleCardReveal(this, 'Manual 🖐️', 'You press keys to type')" class="cursor-pointer bg-white p-4 rounded-2xl border-2 border-pink-200 shadow-md hover:scale-105 transition">
-                                <div class="text-4xl mb-1">⌨️</div>
-                                <div class="font-fredoka text-sm text-pink-900">Keyboard</div>
-                                <div class="reveal-text text-xs text-pink-600 font-bold mt-2">Tap to reveal!</div>
+                            <div onclick="toggleCardReveal(this, 'Manual 🖐️', 'You press keys to type')" class="cursor-pointer bg-white p-6 rounded-3xl border-3 border-pink-200 shadow-lg hover:scale-105 transition">
+                                <div class="text-6xl mb-2">⌨️</div>
+                                <div class="font-fredoka text-lg md:text-xl text-pink-900 font-extrabold">Keyboard</div>
+                                <div class="reveal-text text-sm md:text-base text-pink-600 font-bold mt-2">Tap to reveal!</div>
                             </div>
-                            <div onclick="toggleCardReveal(this, 'Automatic 🤖', 'Detects heat & movement automatically')" class="cursor-pointer bg-white p-4 rounded-2xl border-2 border-amber-200 shadow-md hover:scale-105 transition">
-                                <div class="text-4xl mb-1">🌡️</div>
-                                <div class="font-fredoka text-sm text-amber-900">Temperature Sensor</div>
-                                <div class="reveal-text text-xs text-amber-600 font-bold mt-2">Tap to reveal!</div>
+                            <div onclick="toggleCardReveal(this, 'Automatic 🤖', 'Detects heat & movement automatically')" class="cursor-pointer bg-white p-6 rounded-3xl border-3 border-amber-200 shadow-lg hover:scale-105 transition">
+                                <div class="text-6xl mb-2">🌡️</div>
+                                <div class="font-fredoka text-lg md:text-xl text-amber-900 font-extrabold">Temperature Sensor</div>
+                                <div class="reveal-text text-sm md:text-base text-amber-600 font-bold mt-2">Tap to reveal!</div>
                             </div>
                         </div>
                     </div>
@@ -676,21 +694,21 @@
                 subtitle: "Slide 11 of 11",
                 bgColor: "bg-gradient-to-br from-pastelPurple to-pastelYellow",
                 content: `
-                    <div class="text-center py-4">
-                        <h3 class="font-fredoka text-2xl md:text-3xl text-indigo-800 mb-4">You're Ready for the 100-Point Challenge!</h3>
+                    <div class="text-center py-6 h-full flex flex-col items-center justify-center">
+                        <h3 class="font-fredoka text-3xl md:text-5xl text-indigo-900 font-extrabold mb-6">You're Ready for the 100-Point Challenge!</h3>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto mb-6 text-left">
-                            <div class="bg-white/90 p-4 rounded-2xl border border-indigo-200 shadow-sm">
-                                <div class="font-fredoka text-indigo-700 text-sm">🧩 Part 1: Drag & Drop (5 Qs)</div>
-                                <p class="text-xs text-slate-500">10 points per question = 50 pts total</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8 text-left w-full">
+                            <div class="bg-white/95 p-6 rounded-3xl border-3 border-indigo-300 shadow-md">
+                                <div class="font-fredoka text-indigo-800 text-xl md:text-2xl font-bold mb-1">🧩 Part 1: Drag & Drop (5 Qs)</div>
+                                <p class="text-base md:text-lg text-slate-700 font-semibold">10 points per question = 50 pts total</p>
                             </div>
-                            <div class="bg-white/90 p-4 rounded-2xl border border-blue-200 shadow-sm">
-                                <div class="font-fredoka text-blue-700 text-sm">❓ Part 2: MCQ Quiz (10 Qs)</div>
-                                <p class="text-xs text-slate-500">5 points per question = 50 pts total</p>
+                            <div class="bg-white/95 p-6 rounded-3xl border-3 border-blue-300 shadow-md">
+                                <div class="font-fredoka text-blue-800 text-xl md:text-2xl font-bold mb-1">❓ Part 2: MCQ Quiz (10 Qs)</div>
+                                <p class="text-base md:text-lg text-slate-700 font-semibold">5 points per question = 50 pts total</p>
                             </div>
                         </div>
 
-                        <button onclick="switchTab('drag')" class="px-8 py-4 bg-gradient-to-r from-emerald-400 to-teal-500 hover:opacity-90 text-white font-fredoka text-lg rounded-2xl shadow-xl transition transform hover:scale-105">
+                        <button onclick="switchTab('drag')" class="px-10 py-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-fredoka text-xl md:text-2xl font-extrabold rounded-2xl shadow-xl transition transform hover:scale-105">
                             Start Quiz Challenge! 🧩
                         </button>
                     </div>
@@ -704,15 +722,17 @@
             const container = document.getElementById('slideContainer');
             const slide = slidesData[currentSlideIndex];
             
-            container.className = `w-full ${slide.bgColor} rounded-3xl p-6 md:p-10 shadow-xl border-4 border-white min-h-[490px] flex flex-col justify-between transition-all duration-300 relative overflow-hidden`;
+            container.className = `w-full h-full ${slide.bgColor} rounded-3xl p-6 md:p-10 shadow-2xl border-4 border-white flex flex-col justify-between transition-all duration-300 overflow-y-auto`;
             
             container.innerHTML = `
-                <div>
-                    <div class="flex justify-between items-center border-b border-black/10 pb-3 mb-6">
-                        <h2 class="font-fredoka text-2xl md:text-3xl text-slate-800">${slide.title}</h2>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">${slide.subtitle}</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex justify-between items-center border-b-2 border-black/10 pb-3 mb-4 shrink-0">
+                        <h2 class="font-fredoka text-2xl md:text-4xl text-slate-800 font-black">${slide.title}</h2>
+                        <span class="text-sm md:text-base font-extrabold text-slate-600 uppercase tracking-wider">${slide.subtitle}</span>
                     </div>
-                    ${slide.content}
+                    <div class="flex-1 flex flex-col justify-center">
+                        ${slide.content}
+                    </div>
                 </div>
             `;
 
@@ -720,7 +740,7 @@
 
             const dotsContainer = document.getElementById('slideDotsContainer');
             dotsContainer.innerHTML = slidesData.map((_, idx) => `
-                <button onclick="goToSlide(${idx})" class="w-3.5 h-3.5 rounded-full transition-all ${idx === currentSlideIndex ? 'bg-indigo-600 w-8' : 'bg-slate-300 hover:bg-slate-400'}"></button>
+                <button onclick="goToSlide(${idx})" class="w-4 h-4 rounded-full transition-all ${idx === currentSlideIndex ? 'bg-indigo-600 w-10' : 'bg-slate-300 hover:bg-slate-400'}"></button>
             `).join('');
         }
 
@@ -741,7 +761,7 @@
         function toggleCardReveal(el, title, desc) {
             playPopSound();
             const revealText = el.querySelector('.reveal-text');
-            revealText.innerHTML = `<span class="bg-indigo-100 text-indigo-900 px-2 py-1 rounded-md block mb-1">${title}</span><span class="text-slate-500">${desc}</span>`;
+            revealText.innerHTML = `<span class="bg-indigo-100 text-indigo-950 px-3 py-1 rounded-lg block font-black text-base md:text-lg mb-1">${title}</span><span class="text-slate-700 font-bold">${desc}</span>`;
         }
 
         const dragQuestions = [
@@ -848,7 +868,7 @@
                 const isPlaced = Object.values(dragAnswers).includes(item.id);
                 if (!isPlaced) {
                     const itemEl = document.createElement('div');
-                    itemEl.className = `draggable-item px-4 py-2 bg-white border-2 border-indigo-200 rounded-2xl shadow-sm font-fredoka text-sm text-indigo-900 ${selectedItemForTap === item.id ? 'ring-4 ring-indigo-400 bg-indigo-50' : ''}`;
+                    itemEl.className = `draggable-item px-5 py-3 bg-white border-2 border-indigo-300 rounded-2xl shadow-md font-fredoka text-base md:text-xl font-bold text-indigo-950 ${selectedItemForTap === item.id ? 'ring-4 ring-indigo-500 bg-indigo-100' : ''}`;
                     itemEl.innerText = item.label;
                     itemEl.draggable = true;
                     itemEl.dataset.itemId = item.id;
@@ -876,17 +896,17 @@
                 const placedItemId = dragAnswers[zone.id];
                 const placedItem = q.items.find(i => i.id === placedItemId);
 
-                zoneEl.className = `drop-zone border-2 border-dashed border-slate-300 rounded-2xl p-4 bg-white/70 min-h-[100px] flex flex-col justify-between items-center text-center transition`;
+                zoneEl.className = `drop-zone border-3 border-dashed border-slate-400 rounded-3xl p-5 bg-white/80 min-h-[120px] flex flex-col justify-between items-center text-center transition shadow-sm`;
                 
                 zoneEl.innerHTML = `
-                    <div class="text-xs text-slate-500 font-bold mb-2">${zone.hint}</div>
+                    <div class="text-sm md:text-base text-slate-700 font-extrabold mb-2">${zone.hint}</div>
                     <div class="zone-slot w-full flex-grow flex items-center justify-center">
                         ${placedItem ? `
-                            <div class="px-3 py-1.5 bg-indigo-100 border border-indigo-300 text-indigo-900 rounded-xl font-fredoka text-sm flex items-center justify-between w-full shadow-xs">
+                            <div class="px-4 py-2.5 bg-indigo-100 border-2 border-indigo-400 text-indigo-950 rounded-2xl font-fredoka text-base md:text-lg font-bold flex items-center justify-between w-full shadow-xs">
                                 <span>${placedItem.label}</span>
-                                <button onclick="removeDragAnswer('${zone.id}')" class="text-red-500 font-bold ml-2 text-xs">✕</button>
+                                <button onclick="removeDragAnswer('${zone.id}')" class="text-red-600 font-extrabold ml-2 text-base hover:scale-125 transition">✕</button>
                             </div>
-                        ` : `<span class="text-xs text-slate-400 font-semibold">[ Drop Answer Here ]</span>`}
+                        ` : `<span class="text-sm md:text-base text-slate-400 font-extrabold">[ Drop Answer Here ]</span>`}
                     </div>
                 `;
 
@@ -945,12 +965,12 @@
             if (correctCount === totalZones) {
                 playCorrectSound();
                 dragScores[currentDragIndex] = 10;
-                feedbackBox.className = 'font-fredoka text-emerald-600 font-bold text-sm md:text-base';
+                feedbackBox.className = 'font-fredoka text-emerald-600 font-extrabold text-xl md:text-2xl';
                 feedbackBox.innerText = '🌟 Perfect match! You earned +10 pts!';
             } else {
                 playIncorrectSound();
                 dragScores[currentDragIndex] = Math.round((correctCount / totalZones) * 10);
-                feedbackBox.className = 'font-fredoka text-amber-600 font-bold text-sm md:text-base';
+                feedbackBox.className = 'font-fredoka text-amber-600 font-extrabold text-xl md:text-2xl';
                 feedbackBox.innerText = `👍 You got ${correctCount}/${totalZones} correct! (+${dragScores[currentDragIndex]} pts)`;
             }
 
@@ -1040,19 +1060,19 @@
                 const btn = document.createElement('button');
                 const isSelected = mcqAnswers[currentMcqIndex] === idx;
                 
-                let btnStyle = 'bg-white text-slate-800 border-2 border-slate-200 hover:border-indigo-300';
+                let btnStyle = 'bg-white text-slate-800 border-3 border-slate-200 hover:border-indigo-400';
                 if (isSelected) {
                     if (idx === q.correct) {
-                        btnStyle = 'bg-emerald-100 text-emerald-900 border-2 border-emerald-400 font-bold';
+                        btnStyle = 'bg-emerald-100 text-emerald-950 border-3 border-emerald-500 font-extrabold';
                     } else {
-                        btnStyle = 'bg-rose-100 text-rose-900 border-2 border-rose-400 font-bold';
+                        btnStyle = 'bg-rose-100 text-rose-950 border-3 border-rose-500 font-extrabold';
                     }
                 }
 
-                btn.className = `p-4 rounded-2xl text-left font-fredoka text-sm md:text-base transition-all shadow-sm flex items-center justify-between ${btnStyle}`;
+                btn.className = `p-5 md:p-6 rounded-3xl text-left font-fredoka text-lg md:text-xl transition-all shadow-md flex items-center justify-between ${btnStyle}`;
                 btn.innerHTML = `
-                    <span>${opt}</span>
-                    <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center text-xs">
+                    <span class="font-bold">${opt}</span>
+                    <span class="w-8 h-8 rounded-full border-2 border-slate-400 flex items-center justify-center text-base font-extrabold shrink-0 ml-2">
                         ${isSelected ? (idx === q.correct ? '✓' : '✕') : ''}
                     </span>
                 `;
@@ -1105,16 +1125,16 @@
             const msgEl = document.getElementById('finalBadgeMessage');
             if (total === 100) {
                 msgEl.innerText = "🌟 PERFECT 100! You are an Input Device Master! 🏆";
-                msgEl.className = "font-fredoka text-lg text-emerald-600 font-bold mt-2";
+                msgEl.className = "font-fredoka text-xl text-emerald-600 font-extrabold mt-2";
             } else if (total >= 80) {
                 msgEl.innerText = "🌈 AWESOME JOB! You know input devices so well! ⭐";
-                msgEl.className = "font-fredoka text-lg text-indigo-600 font-bold mt-2";
+                msgEl.className = "font-fredoka text-xl text-indigo-600 font-extrabold mt-2";
             } else if (total >= 50) {
                 msgEl.innerText = "👍 GOOD EFFORT! Keep practicing to become a tech expert! 🚀";
-                msgEl.className = "font-fredoka text-lg text-amber-600 font-bold mt-2";
+                msgEl.className = "font-fredoka text-xl text-amber-600 font-extrabold mt-2";
             } else {
                 msgEl.innerText = "🌱 NICE TRY! Let's review the slides together! 🎈";
-                msgEl.className = "font-fredoka text-lg text-purple-600 font-bold mt-2";
+                msgEl.className = "font-fredoka text-xl text-purple-600 font-extrabold mt-2";
             }
         }
 
@@ -1132,23 +1152,23 @@
             const btnEnd = document.getElementById('navBtnEnd');
 
             [btnSlides, btnDrag, btnMcq, btnEnd].forEach(b => {
-                b.className = "px-4 py-2 rounded-xl font-fredoka text-sm text-slate-600 hover:bg-slate-200 transition-all";
+                b.className = "px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg text-slate-700 hover:bg-slate-200 transition-all font-semibold";
             });
 
             if (tab === 'slides') {
                 document.getElementById('sectionSlides').classList.remove('hidden');
-                btnSlides.className = "px-4 py-2 rounded-xl font-fredoka text-sm bg-indigo-500 text-white shadow-md transition-all";
+                btnSlides.className = "px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg bg-indigo-500 text-white shadow-md transition-all font-semibold";
             } else if (tab === 'drag') {
                 document.getElementById('sectionDrag').classList.remove('hidden');
-                btnDrag.className = "px-4 py-2 rounded-xl font-fredoka text-sm bg-indigo-500 text-white shadow-md transition-all";
+                btnDrag.className = "px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg bg-indigo-500 text-white shadow-md transition-all font-semibold";
                 renderDragQuestion();
             } else if (tab === 'mcq') {
                 document.getElementById('sectionMcq').classList.remove('hidden');
-                btnMcq.className = "px-4 py-2 rounded-xl font-fredoka text-sm bg-indigo-500 text-white shadow-md transition-all";
+                btnMcq.className = "px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg bg-indigo-500 text-white shadow-md transition-all font-semibold";
                 renderMcqQuestion();
             } else if (tab === 'end') {
                 document.getElementById('sectionEnd').classList.remove('hidden');
-                btnEnd.className = "px-4 py-2 rounded-xl font-fredoka text-sm bg-amber-500 text-white shadow-md transition-all";
+                btnEnd.className = "px-4 py-2.5 rounded-xl font-fredoka text-base md:text-lg bg-amber-500 text-white shadow-md transition-all font-semibold";
                 playFanfareSound();
                 triggerConfetti();
             }
